@@ -14,11 +14,11 @@ public class FileList extends ServerResource{
 	@Get
     public JsonRepresentation getResource() throws JSONException, ResourceException, IOException {
 		JSONArray list =  new JSONArray();
-		for(String name : Main.ServerList.keySet())
+		for(String name : Main.ServerList)
 		{
 			JSONObject file = new JSONObject() ;  
 			file.put("name", name);
-			file.put("url", "http://localhost:" +Main.port + "/api/file?fileName=" + name);
+			file.put("url", "http://localhost:" +Main.port + "/711P2/file?fileName=" + name);
 			list.put(file);
 		}	
 		return new JsonRepresentation(list);

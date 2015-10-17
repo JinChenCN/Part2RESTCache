@@ -1,0 +1,6 @@
+user request: file test4.txt at 17:52:01 2015-10-17
+response: 72.73% of file test4.txt was constructed with the cached data
+
+user request: file testcopy2.txt at 17:52:29 2015-10-17
+response: 90.91% of file testcopy2.txt was constructed with the cached data
+

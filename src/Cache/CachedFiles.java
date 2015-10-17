@@ -1,42 +1,31 @@
 package Cache;
 
 import java.io.File;
+import java.io.IOException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.restlet.ext.json.JsonRepresentation;
+import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ClientResource;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 
 public class CachedFiles extends ServerResource{
-	@Post
-    public StringRepresentation clearResource() {
-		StringRepresentation result = null;
-		if(Delete(Main.filePath))
-		{
-			result = new StringRepresentation("All cached files have been cleared!");
-		}else
-		{
-			result = new StringRepresentation("There was something wrong, please try again later!");
-		}
-			
-		return result;	
-	}
-	
 	@Get
-    public JsonRepresentation getResource() throws JSONException {
-		JSONArray list =  new JSONArray();
-		for(File singlefile : Main.listOfCachedFiles)
+    public StringRepresentation clearResource() throws IOException {
+		StringRepresentation result = new StringRepresentation("There was something wrong, please try again later!");
+		if(Delete(Main.filePath) && Delete(Main.segmentPath))
 		{
-			JSONObject file = new JSONObject() ;  
-			file.put("name", singlefile.getName());
-			file.put("deleteUrl", "http://localhost:" +Main.port + "/api/DeleteCachedfile?fileName=" + singlefile.getName());
-			list.put(file);
-		}	
-		return new JsonRepresentation(list);
+			 Main.listOfCachedFiles.clear();
+			 Main.listOfCachedSegments.clear();
+			 ClientResource file = new ClientResource("http://localhost:" + Main.serverPort + "/711P2/clearCache");
+			 Representation rep = file.get();
+			 if(rep.getText().equals("OK"))
+			 {
+				 result = new StringRepresentation("All cached files have been cleared!");
+			 }			 
+		}			
+		return result;	
+
 	}
 		
 	private Boolean Delete(String filePath)
@@ -48,7 +37,6 @@ public class CachedFiles extends ServerResource{
 	        }
 		 if(folder.list().length == 0)
 		 {
-			 Main.listOfCachedFiles.clear();
 			 result = true;
 		 }
 		 return result;

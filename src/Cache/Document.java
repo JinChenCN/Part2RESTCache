@@ -3,16 +3,20 @@ package Cache;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.restlet.Request;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
+import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -23,7 +27,7 @@ public class Document extends ServerResource {
 	String fileName = "";
 	
 	@Get
-    public FileRepresentation getResource() throws IOException {
+    public FileRepresentation getResource() throws IOException, JSONException {
 		FileRepresentation result = null;
 		Request request = getRequest();
 		Form form = request.getResourceRef().getQueryAsForm();		
@@ -37,58 +41,77 @@ public class Document extends ServerResource {
     	{
     		if(fileName.equals(Main.listOfCachedFiles.get(i).getName()))
     		{
-    			writeLog(fileName, "100% of file " + fileName + " was cconstructed with the cached data");   					
+    			writeLog(fileName, "100% of file " + fileName + " was constructed with the cached data");   					
     			return new FileRepresentation(new File(Main.filePath+"//"+fileName), MediaType.TEXT_HTML);
     		} 
     	}		
 
 		int cached = 0, downloaded = 0;
-		if(Main.ServerList.containsKey(fileName))
-		{
-			List<String> segments = Main.ServerList.get(fileName);
-			for(String seg : segments)
-			{
-				if(!Main.listOfCachedSegments.contains(seg))
-				{
-					downloaded ++;
-					ClientResource segment = new ClientResource("http://localhost:" + Main.serverPort + "/api/segment?segName="+seg);
-					//TODO
-					Representation response = segment.get();
-					InputStream fileInput = response.getStream();
-					OutputStream fileOut = new FileOutputStream(new File(Main.segmentPath+"/"+fileName));
-					int read = 0;
-					byte[] bytes = new byte[1024];
-					 while ((read = fileInput.read(bytes)) != -1)
+		FileOutputStream out = new FileOutputStream(Main.filePath+"//"+fileName);
+
+		ClientResource file = new ClientResource("http://localhost:" + Main.serverPort + "/711P2/file?filename="+fileName);
+		Representation rep = file.get();
+		JsonRepresentation jsonRepresentation = new JsonRepresentation(rep);			
+		 try {
+			JSONArray array = jsonRepresentation.getJsonArray();
+			 for (int i = 0; i < array.length(); i++)
+			 {
+				 JSONObject object = new JSONObject();
+				 object = (JSONObject) array.get(i);
+				 String segName = object.getString("name");
+				 ArrayList<String> segNames = new ArrayList<String>();
+				 for(int k = 0; k < Main.listOfCachedSegments.size(); k++)
+				 {
+					 segNames.add(Main.listOfCachedSegments.get(k).getName());
+				 }
+				 if (segNames.contains(segName))
+				 {
+					 
+					 for (int j = 0; j<Main.listOfCachedSegments.size(); j++)
+				    	{
+				    		if(segName.equals(Main.listOfCachedSegments.get(j).getName()))
+				    		{
+				    			cached ++;
+				    			out.write(Files.readAllBytes(Main.listOfCachedSegments.get(j).toPath()));				    			
+				    		} 
+				    	}							 					
+				 }
+				 else
+				 {
+					 FileOutputStream newSeg = new FileOutputStream(Main.segmentPath + "//" + segName);
+					JSONArray entries = new JSONArray(object.get("content").toString());
+					 byte[] content = new byte[entries.length()];
+					 for(int h = 0; h < entries.length(); h++)
 					 {
-						 fileOut.write(bytes, 0, read);
+						 content[h] = (byte) entries.getInt(h);
 					 }
-					 fileInput.close();
-					 fileOut.flush();
-					 fileOut.close();
-					 Main.listOfCachedFiles.add(new File(Main.filePath+"/"+fileName));
-				}
-
-			}
-			writeLog(fileName, "100% of file " + fileName + " was cconstructed with the cached data");   					
-			return new FileRepresentation(new File(Main.filePath+"//"+fileName), MediaType.TEXT_HTML);
-		} 
-
-
-		ClientResource file = new ClientResource("http://localhost:" + Main.serverPort + "/api/file?filename="+fileName);
-		writeLog(fileName, "file " + fileName + " downloaded from the server");  
-		Representation response = file.get();
-		InputStream fileInput = response.getStream();
-		OutputStream fileOut = new FileOutputStream(new File(Main.filePath+"/"+fileName));
-		int read = 0;
-		byte[] bytes = new byte[1024];
-		 while ((read = fileInput.read(bytes)) != -1)
+					 newSeg.write(content);
+					 newSeg.close();
+					 out.write(content);
+					 Main.listOfCachedSegments.add(new File(Main.segmentPath + "//" + segName));
+					 downloaded ++;
+				 }
+				 
+			 }
+			 out.close();
+			 NumberFormat nf = NumberFormat.getPercentInstance(); 
+			 nf.setMinimumFractionDigits(2);
+			 if(cached == 0)
+			 {
+				 writeLog(fileName, "0% of file " + fileName + " was constructed with the cached data"); 
+			 }
+			 else
+			 {
+				 String percent = nf.format((double)cached/(cached + downloaded));
+				 writeLog(fileName, percent + " of file " + fileName + " was constructed with the cached data"); 				 
+			 }							
+		       
+	    }catch (IOException e)
 		 {
-			 fileOut.write(bytes, 0, read);
+	    	e.printStackTrace();
 		 }
-		 fileInput.close();
-		 fileOut.flush();
-		 fileOut.close();
-		 Main.listOfCachedFiles.add(new File(Main.filePath+"/"+fileName));
+		 out.close();
+		 Main.listOfCachedFiles.add(new File(Main.filePath + "//" + fileName));
 		 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.TEXT_HTML);
 		 return result;
     }
@@ -126,9 +149,4 @@ public class Document extends ServerResource {
          return buffer.toString();
     }
     
-    private File construct(String fileName)
-    {
-    	File generatedFile = new File(Main.filePath+"/"+fileName);
-    	return generatedFile;
-    }
 }

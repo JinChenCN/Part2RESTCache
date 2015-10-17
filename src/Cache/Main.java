@@ -5,17 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.ext.json.JsonRepresentation;
@@ -23,13 +17,13 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
 public class Main {
-	static Integer port = 8186;
-	static Integer serverPort = 8185;
+	static Integer port = 8086;
+	static Integer serverPort = 8085;
 	static String filePath = "";
 	static String segmentPath = "";
+	static ArrayList<String> ServerList = new ArrayList<String>();
 	static ArrayList<File> listOfCachedFiles = new ArrayList<File>();
 	static ArrayList<File> listOfCachedSegments = new ArrayList<File>();
-	static Map<String, List<String>> ServerList = null;
     static File logName = new File("log.log");
 	
 	public static void main(String[] args) throws Exception {  		
@@ -42,9 +36,9 @@ public class Main {
 	        }
 		
 		// Initiate cached segments
-		File segfolder = new File(filePath);
-		for(File cachedFile : segfolder.listFiles()) {
-			 cachedFile.delete();               
+		File segfolder = new File(segmentPath);
+		for(File cachedSeg : segfolder.listFiles()) {
+			cachedSeg.delete();               
 	        }	
 			
     	getFileList();
@@ -92,35 +86,17 @@ public class Main {
 	private static void getFileList() throws JSONException
 	{
 		try {
-			ClientResource list = new ClientResource("http://localhost:" +serverPort + "/api/fileSegMap");
+			ClientResource list = new ClientResource("http://localhost:" +serverPort + "/711P2/files");
 			Representation result = list.get();
 			JsonRepresentation jsonRepresentation = new JsonRepresentation(result);			
 			JSONArray array = jsonRepresentation.getJsonArray();
 			for(int i =0; i<array.length(); i++)
 			{
-				JSONObject ob = new JSONObject(array.get(i));
-				String fileContent = ob.get("content").toString();
-				List<String> segementList=new ArrayList<String>();
-				segementList = getSegementList(fileContent);
-				ServerList.put(ob.get("name").toString(), segementList);
+				ServerList.add(array.get(i).toString());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
 	}
 	
-	private static List<String> getSegementList(String fileContent){
-        List<String> ls=new ArrayList<String>();
-        Pattern pattern = Pattern.compile("(?<=\\()(.+?)(?=\\))");
-        Matcher matcher = pattern.matcher(fileContent);
-        while(matcher.find())
-            ls.add(matcher.group());
-        return ls;
-    }
-	
-	public static String getDate()
-	{
-		SimpleDateFormat sDateFormat = new SimpleDateFormat("hh:mm:ss yyyy-MM-dd");     
-		return sDateFormat.format(new java.util.Date()); 
-	}
 }
