@@ -139,14 +139,14 @@ public class Document extends ServerResource {
     }  
  
     private String info(String fileName, String info){
-         StringBuffer buffer=new StringBuffer();
-         Date date = new Date();   
-         SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");   
-         String d = sd.format(date)+"\r\n";  
-         buffer.append("user request: file "+ fileName +" at "+ d);
-         buffer.append("response: ").append(info).append("\r\n");
-         buffer.append("\r\n");
-         return buffer.toString();
+    	  StringBuffer buffer=new StringBuffer();
+          Date date = new Date();   
+          SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");   
+          String d = sd.format(date)+System.getProperty("line.separator");  
+          buffer.append("<br>user request: file "+ fileName +" at "+ d+System.getProperty("line.separator"));
+          buffer.append("response: ").append(info).append(System.getProperty("line.separator"));
+          buffer.append("<br>");
+          return buffer.toString();
     }
     
 }

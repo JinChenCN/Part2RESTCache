@@ -2,43 +2,37 @@ package Cache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.restlet.data.MediaType;
+import org.restlet.representation.AppendableRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.ClientResource;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 public class CachedFiles extends ServerResource{
-	@Get
-    public StringRepresentation clearResource() throws IOException {
-		StringRepresentation result = new StringRepresentation("There was something wrong, please try again later!");
-		if(Delete(Main.filePath) && Delete(Main.segmentPath))
-		{
-			 Main.listOfCachedFiles.clear();
-			 Main.listOfCachedSegments.clear();
-			 ClientResource file = new ClientResource("http://localhost:" + Main.serverPort + "/711P2/clearCache");
-			 Representation rep = file.get();
-			 if(rep.getText().equals("OK"))
-			 {
-				 result = new StringRepresentation("All cached files have been cleared!");
-			 }			 
-		}			
-		return result;	
-
-	}
+	@Get("html")
+    public Representation getResource() throws JSONException {
+		AppendableRepresentation html = new AppendableRepresentation("<html xmlns=\"http://www.w3.org/1999/xhtml\">", MediaType.TEXT_HTML);
+		try {
+		    html.append("<body>");
+		    html.append("Files cached on the Cache:<br>");
+		    html.append("<ul>");
+			ArrayList<File> files= Main.listOfCachedFiles;
+			for(File file : files)
+			{
+				html.append("<li>"+file.getName()+"</li>");
+			}			 
+		    html.append("</ul>");
+		    html.append("</body>");
+		  }
+		 catch (  IOException e) {
+		    throw new ResourceException(e);
+		  }
+		  return html;
 		
-	private Boolean Delete(String filePath)
-	{
-		Boolean result = false;
-		File folder = new File(filePath);
-		 for(File cachedFile : folder.listFiles()) {
-			 cachedFile.delete();               
-	        }
-		 if(folder.list().length == 0)
-		 {
-			 result = true;
-		 }
-		 return result;
 	}
+
 }
