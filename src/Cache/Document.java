@@ -25,6 +25,7 @@ import org.restlet.resource.ServerResource;
 
 public class Document extends ServerResource {
 	String fileName = "";
+	String prefix= "";
 	
 	@Get
     public FileRepresentation getResource() throws IOException, JSONException {
@@ -112,7 +113,39 @@ public class Document extends ServerResource {
 		 }
 		 out.close();
 		 Main.listOfCachedFiles.add(new File(Main.filePath + "//" + fileName));
-		 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.TEXT_HTML);
+		 String fileType = Files.probeContentType(new File(Main.filePath + "//" + fileName).toPath());
+			if(fileType==null)
+			{
+				result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.TEXT_HTML);
+			}
+			else
+			{
+				switch (fileType) {
+		         case "text/plain":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.TEXT_HTML);
+		             break;
+		         case "image/jpeg":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.IMAGE_JPEG);
+		             break;
+		         case "image/png":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.IMAGE_PNG);
+		             break;
+		         case "application/pdf":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.APPLICATION_PDF);
+		        	 break;
+		         case "application/msword":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.APPLICATION_WORD);
+		             break;
+		         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.APPLICATION_MSOFFICE_DOCX);
+		        	 break;
+		         case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.APPLICATION_MSOFFICE_XLSX);
+		        	 break;
+		         default:
+		        	 result = new FileRepresentation(Main.filePath + "//" + fileName, MediaType.TEXT_HTML);
+				}			
+			}		
 		 return result;
     }
 	

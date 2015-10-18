@@ -41,6 +41,8 @@ public class Main {
 			cachedSeg.delete();               
 	        }	
 			
+		// Init server
+		clearCache();
     	getFileList();
     	
     	// Initiate log
@@ -82,7 +84,12 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-
+	private static void clearCache()
+	{
+		ClientResource list = new ClientResource("http://localhost:" +serverPort + "/711P2/clearCache");
+		list.get();
+	}
+	
 	private static void getFileList() throws JSONException
 	{
 		try {
