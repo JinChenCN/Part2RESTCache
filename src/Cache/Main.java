@@ -31,16 +31,23 @@ public class Main {
 		
 		// Initiate cached Files
 		File folder = new File(filePath);
-		for(File cachedFile : folder.listFiles()) {
-			 cachedFile.delete();               
-	        }
+		if(folder.listFiles() != null)
+		{
+			for(File cachedFile : folder.listFiles()) {
+				 cachedFile.delete();               
+		       }
+		}
+		
 		
 		// Initiate cached segments
 		File segfolder = new File(segmentPath);
-		for(File cachedSeg : segfolder.listFiles()) {
-			cachedSeg.delete();               
-	        }	
-			
+		if(segfolder.listFiles() != null)
+		{
+			for(File cachedSeg : segfolder.listFiles()) {
+				cachedSeg.delete();               
+		        }					
+		}
+		
 		// Init server
 		clearCache();
     	getFileList();

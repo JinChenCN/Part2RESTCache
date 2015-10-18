@@ -1,16 +1,9 @@
-<br>user request: file 2015-02.png at 13:59:51 2015-10-18
-
-response: 0% of file 2015-02.png was constructed with the cached data
-<br><br>user request: file test2.txt at 13:59:59 2015-10-18
-
-response: 50.00% of file test2.txt was constructed with the cached data
-<br><br>user request: file test4.txt at 14:00:04 2015-10-18
-
-response: 72.73% of file test4.txt was constructed with the cached data
-<br><br>user request: file testcopy2.txt at 14:00:08 2015-10-18
-
-response: 90.91% of file testcopy2.txt was constructed with the cached data
-<br><br>user request: file 2015-02.JPG at 14:00:26 2015-10-18
-
-response: 91.03% of file 2015-02.JPG was constructed with the cached data
+<br>user request: file 2015-02.JPG at 15:56:12 2015-10-18
+<br>response: 91.03% of file 2015-02.JPG was constructed with the cached data
+<br><br>user request: file 2015-02.png at 15:56:24 2015-10-18
+<br>response: 0% of file 2015-02.png was constructed with the cached data
+<br><br>user request: file test4.txt at 15:56:42 2015-10-18
+<br>response: 72.73% of file test4.txt was constructed with the cached data
+<br><br>user request: file testcopy2.txt at 15:56:46 2015-10-18
+<br>response: 90.91% of file testcopy2.txt was constructed with the cached data
 <br>

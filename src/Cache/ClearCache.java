@@ -32,13 +32,20 @@ public class ClearCache extends ServerResource{
 	{
 		Boolean result = false;
 		File folder = new File(filePath);
-		 for(File cachedFile : folder.listFiles()) {
-			 cachedFile.delete();               
-	        }
-		 if(folder.list().length == 0)
-		 {
-			 result = true;
-		 }
+		if(folder.listFiles() != null)
+		{
+			 for(File cachedFile : folder.listFiles()) {
+				 cachedFile.delete();               
+		        }
+			 if(folder.list().length == 0)
+			 {
+				 result = true;
+			 }
+		}
+		else
+		{
+			result = true;
+		}	
 		 return result;
 	}
 
