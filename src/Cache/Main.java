@@ -19,8 +19,8 @@ import org.restlet.resource.ClientResource;
 public class Main {
 	static Integer port = 8086;
 	static Integer serverPort = 8085;
-	static String filePath = "";
-	static String segmentPath = "";
+	static String filePath = "TestCacheFolderP2";
+	static String segmentPath = "TestSegCacheFolderP2";
 	static ArrayList<String> ServerList = new ArrayList<String>();
 	static ArrayList<File> listOfCachedFiles = new ArrayList<File>();
 	static ArrayList<File> listOfCachedSegments = new ArrayList<File>();
@@ -31,6 +31,13 @@ public class Main {
 		
 		// Initiate cached Files
 		File folder = new File(filePath);
+		try {
+			   if (!(folder.isDirectory())) {
+			    new File(filePath).mkdir();
+			   }
+			  } catch (SecurityException e) {
+			   e.printStackTrace();
+			  }
 		if(folder.listFiles() != null)
 		{
 			for(File cachedFile : folder.listFiles()) {
@@ -41,6 +48,13 @@ public class Main {
 		
 		// Initiate cached segments
 		File segfolder = new File(segmentPath);
+		try {
+			   if (!(segfolder.isDirectory())) {
+			    new File(segmentPath).mkdir();
+			   }
+			  } catch (SecurityException e) {
+			   e.printStackTrace();
+			  }
 		if(segfolder.listFiles() != null)
 		{
 			for(File cachedSeg : segfolder.listFiles()) {
@@ -85,8 +99,6 @@ public class Main {
 			file.close();
 			port = Integer.parseInt(configFile.getProperty("CachePort"));
 			serverPort = Integer.parseInt(configFile.getProperty("ServerPort"));
-			filePath = configFile.getProperty("CacheFilePath");
-			segmentPath = configFile.getProperty("CachedSegmentFilePath");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
